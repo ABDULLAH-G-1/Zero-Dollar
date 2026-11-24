@@ -17,7 +17,10 @@ if str(PROJECT_ROOT) not in sys.path:
 from ingestion.config import (
     GITHUB_TOKEN,
     LOOKBACK_DAYS,
+    MOTHERDUCK_TOKEN,
+    TARGET_ENV,
     TARGET_REPOS,
+    get_dlt_destination,
     get_duckdb_destination,
 )
 
@@ -256,12 +259,14 @@ def github_source(repos: tuple[str, ...] = tuple(TARGET_REPOS)) -> list[Any]:
     ]
 
 
-def run_pipeline() -> Any:
-    """Run the GitHub ingestion pipeline targeting the configured DuckDB destination."""
-    destination_str = get_duckdb_destination()
+def run_pipeline(destination: Any = None) -> Any:
+    """Run the GitHub ingestion pipeline targeting DuckDB (dev) or MotherDuck (prod)."""
+    if destination is None:
+        destination = get_dlt_destination()
+
     pipeline = dlt.pipeline(
         pipeline_name="github_pipeline",
-        destination=dlt.destinations.duckdb(destination_str),
+        destination=destination,
         dataset_name="github_raw",
     )
     load_info = pipeline.run(github_source())

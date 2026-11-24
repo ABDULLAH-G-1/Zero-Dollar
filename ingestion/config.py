@@ -24,6 +24,22 @@ except ValueError:
 
 def get_duckdb_destination() -> str:
     """Return local DuckDB file path for dev, or MotherDuck connection string for prod."""
-    if TARGET_ENV == "prod":
-        return f"md:github_analytics?motherduck_token={MOTHERDUCK_TOKEN}"
+    target_env = os.getenv("TARGET_ENV", TARGET_ENV)
+    motherduck_token = os.getenv("MOTHERDUCK_TOKEN", MOTHERDUCK_TOKEN)
+    if target_env.lower() == "prod":
+        return f"md:github_analytics?motherduck_token={motherduck_token}"
     return "data/github_warehouse.duckdb"
+
+
+def get_dlt_destination():
+    """Return configured dlt destination: motherduck in prod, duckdb in dev."""
+    import dlt
+
+    target_env = os.getenv("TARGET_ENV", TARGET_ENV)
+    motherduck_token = os.getenv("MOTHERDUCK_TOKEN", MOTHERDUCK_TOKEN)
+
+    if target_env.lower() == "prod":
+        return dlt.destinations.motherduck(
+            credentials=f"md:github_analytics?motherduck_token={motherduck_token}"
+        )
+    return dlt.destinations.duckdb("data/github_warehouse.duckdb")
