@@ -1,0 +1,143 @@
+version: 2
+
+models:
+  - name: dim_repos
+    description: "Dimension table containing GitHub repository metadata."
+    columns:
+      - name: repo_key
+        description: "Surrogate primary key: md5 hash of repo_full_name."
+        tests:
+          - unique
+          - not_null
+      - name: repo_id
+        description: "GitHub numeric repository ID."
+        tests:
+          - unique
+          - not_null
+      - name: repo_full_name
+        description: "Full repository path (owner/repo)."
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_contributors
+    description: "Dimension table containing GitHub contributor activity and bot classification."
+    columns:
+      - name: contributor_key
+        description: "Surrogate primary key: md5 hash of author_login."
+        tests:
+          - unique
+          - not_null
+      - name: author_login
+        description: "Unique contributor login handle."
+        tests:
+          - unique
+          - not_null
+      - name: is_bot
+        description: "Boolean indicating if contributor is an automated bot."
+        tests:
+          - not_null
+
+  - name: fct_commits
+    description: "Fact table for Git commits."
+    columns:
+      - name: commit_sha
+        description: "Git commit SHA-1 primary key."
+        tests:
+          - unique
+          - not_null
+      - name: repo_key
+        description: "Foreign key to dim_repos."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_repos')
+                field: repo_key
+      - name: contributor_key
+        description: "Foreign key to dim_contributors."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_contributors')
+                field: contributor_key
+
+  - name: fct_pull_requests
+    description: "Fact table for pull requests."
+    columns:
+      - name: pr_id
+        description: "Pull request primary key."
+        tests:
+          - unique
+          - not_null
+      - name: repo_key
+        description: "Foreign key to dim_repos."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_repos')
+                field: repo_key
+      - name: contributor_key
+        description: "Foreign key to dim_contributors."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_contributors')
+                field: contributor_key
+      - name: pr_status
+        description: "Pull request status lifecycle (open, closed, merged)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['open', 'closed', 'merged']
+
+  - name: fct_issues
+    description: "Fact table for issues (excluding pull requests)."
+    columns:
+      - name: issue_id
+        description: "Issue primary key."
+        tests:
+          - unique
+          - not_null
+      - name: repo_key
+        description: "Foreign key to dim_repos."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_repos')
+                field: repo_key
+      - name: contributor_key
+        description: "Foreign key to dim_contributors."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_contributors')
+                field: contributor_key
+      - name: issue_state
+        description: "Issue state (open, closed)."
+        tests:
+          - not_null
+
+  - name: mart_repo_health_summary
+    description: "Aggregated repository-level engineering health KPIs."
+    columns:
+      - name: repo_key
+        description: "Primary key: foreign key to dim_repos."
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_repos')
+                field: repo_key
+      - name: repo_full_name
+        description: "Full repository path (owner/repo)."
+        tests:
+          - unique
+          - not_null

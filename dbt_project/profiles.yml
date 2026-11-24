@@ -1,0 +1,13 @@
+github_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "../data/github_warehouse.duckdb"
+      schema: main
+      threads: 4
+    prod:
+      type: duckdb
+      path: "md:github_analytics?motherduck_token={{ env_var('MOTHERDUCK_TOKEN', '') }}"
+      schema: main
+      threads: 4

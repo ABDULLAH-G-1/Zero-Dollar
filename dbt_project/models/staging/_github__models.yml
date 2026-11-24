@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: stg_github__repos
+    description: "Staging model for cleaned GitHub repository metadata."
+    columns:
+      - name: repo_id
+        description: "Primary key: unique ID of the repository."
+        tests:
+          - unique
+          - not_null
+      - name: repo_full_name
+        description: "Full repository path (owner/repo)."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_github__commits
+    description: "Staging model for cleaned GitHub commits."
+    columns:
+      - name: commit_sha
+        description: "Primary key: unique Git SHA hash."
+        tests:
+          - unique
+          - not_null
+      - name: repo_full_name
+        description: "Full repository name."
+        tests:
+          - not_null
+
+  - name: stg_github__pull_requests
+    description: "Staging model for cleaned GitHub pull requests."
+    columns:
+      - name: pr_id
+        description: "Primary key: unique ID of the pull request."
+        tests:
+          - unique
+          - not_null
+      - name: pr_number
+        description: "Pull request number within the repo."
+        tests:
+          - not_null
+      - name: pr_status
+        description: "Normalized pull request status (open, closed, merged)."
+        tests:
+          - not_null
+
+  - name: stg_github__issues
+    description: "Staging model for cleaned GitHub issues."
+    columns:
+      - name: issue_id
+        description: "Primary key: unique ID of the issue."
+        tests:
+          - unique
+          - not_null
+      - name: issue_number
+        description: "Issue number within the repo."
+        tests:
+          - not_null
+      - name: issue_state
+        description: "Current issue state (open, closed)."
+        tests:
+          - not_null
