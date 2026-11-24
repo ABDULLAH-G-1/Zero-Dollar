@@ -1,0 +1,24 @@
+# Environment & Secrets
+.env
+.venv/
+venv/
+
+# Python cache & bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local DuckDB database files
+data/*.duckdb*
+
+# dlt configuration & secrets (except templates)
+.dlt/*.toml
+!.dlt/*.template.toml
+!.dlt/config.toml.template
+!.dlt/secrets.toml.template
+
+# dbt artifacts (Phases 2 & 3)
+dbt_project/target/
+dbt_project/dbt_packages/
+dbt_project/logs/
