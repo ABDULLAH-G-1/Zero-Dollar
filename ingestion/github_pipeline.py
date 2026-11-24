@@ -121,7 +121,7 @@ def _to_utc_datetime(dt_val: Any) -> datetime:
 
 
 @dlt.resource(name="raw_repos", write_disposition="merge", primary_key="id")
-def raw_repos(repos: list[str] = TARGET_REPOS) -> Iterator[dict[str, Any]]:
+def raw_repos(repos: tuple[str, ...] = tuple(TARGET_REPOS)) -> Iterator[dict[str, Any]]:
     """Fetch repository metadata for each repo in TARGET_REPOS and add ingested_at_utc."""
     for repo in repos:
         repo_data = _github_request(f"/repos/{repo}")
@@ -131,7 +131,7 @@ def raw_repos(repos: list[str] = TARGET_REPOS) -> Iterator[dict[str, Any]]:
 
 @dlt.resource(name="raw_commits", write_disposition="merge", primary_key="sha")
 def raw_commits(
-    repos: list[str] = TARGET_REPOS,
+    repos: tuple[str, ...] = tuple(TARGET_REPOS),
     cursor_date: dlt.sources.incremental = dlt.sources.incremental(
         "commit.committer.date",
         initial_value=_get_initial_lookback_date(),
@@ -165,7 +165,7 @@ def raw_commits(
 
 @dlt.resource(name="raw_pull_requests", write_disposition="merge", primary_key="id")
 def raw_pull_requests(
-    repos: list[str] = TARGET_REPOS,
+    repos: tuple[str, ...] = tuple(TARGET_REPOS),
     cursor_date: dlt.sources.incremental = dlt.sources.incremental(
         "updated_at",
         initial_value=_get_initial_lookback_date(),
@@ -209,7 +209,7 @@ def raw_pull_requests(
 
 @dlt.resource(name="raw_issues", write_disposition="merge", primary_key="id")
 def raw_issues(
-    repos: list[str] = TARGET_REPOS,
+    repos: tuple[str, ...] = tuple(TARGET_REPOS),
     cursor_date: dlt.sources.incremental = dlt.sources.incremental(
         "updated_at",
         initial_value=_get_initial_lookback_date(),
@@ -246,7 +246,7 @@ def raw_issues(
 
 
 @dlt.source(name="github")
-def github_source(repos: list[str] = TARGET_REPOS) -> list[Any]:
+def github_source(repos: tuple[str, ...] = tuple(TARGET_REPOS)) -> list[Any]:
     """Dlt source exposing GitHub repositories, commits, pull requests, and issues."""
     return [
         raw_repos(repos=repos),
