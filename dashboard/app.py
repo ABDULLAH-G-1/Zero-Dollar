@@ -34,7 +34,7 @@ st.markdown(
     """
     <style>
         .block-container {
-            padding-top: 1.5rem;
+            padding-top: 2rem;
             padding-bottom: 2rem;
             padding-left: 2rem;
             padding-right: 2rem;
@@ -46,19 +46,21 @@ st.markdown(
             margin-bottom: 0.2rem;
         }
         .sub-header {
-            font-size: 1.0rem;
+            font-size: 0.95rem;
             color: #64748b;
             margin-bottom: 1.5rem;
         }
-        .kpi-card {
-            background-color: rgba(248, 250, 252, 0.05);
-            border: 1px solid rgba(226, 232, 240, 0.2);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
+        [data-testid="stMetricValue"] {
+            font-size: 1.55rem;
+            font-weight: 700;
+        }
+        [data-testid="stMetricLabel"] {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
         }
         .footer-container {
-            margin-top: 3rem;
+            margin-top: 2.5rem;
             padding-top: 1.2rem;
             border-top: 1px solid rgba(226, 232, 240, 0.2);
             font-size: 0.85rem;
@@ -393,35 +395,40 @@ def main():
     c1, c2, c3, c4, c5 = st.columns(5)
 
     with c1:
-        st.metric(
-            label="Total Commits",
-            value=f"{kpis['total_commits']:,}",
-            help="Total Git commits across selected repositories",
-        )
+        with st.container(border=True):
+            st.metric(
+                label="Total Commits",
+                value=f"{kpis['total_commits']:,}",
+                help="Total Git commits across selected repositories",
+            )
     with c2:
-        st.metric(
-            label="Merged Pull Requests",
-            value=f"{kpis['merged_prs']:,}",
-            help="Count of pull requests successfully merged into default branch",
-        )
+        with st.container(border=True):
+            st.metric(
+                label="Merged PRs",
+                value=f"{kpis['merged_prs']:,}",
+                help="Count of pull requests successfully merged into default branch",
+            )
     with c3:
-        st.metric(
-            label="Avg PR Merge Time",
-            value=f"{kpis['avg_merge_time_hrs']:.1f} hrs",
-            help="Average duration in hours from PR creation to merge",
-        )
+        with st.container(border=True):
+            st.metric(
+                label="Avg PR Merge Time",
+                value=f"{kpis['avg_merge_time_hrs']:.1f} hrs",
+                help="Average duration in hours from PR creation to merge",
+            )
     with c4:
-        st.metric(
-            label="Issue Closure Rate",
-            value=f"{kpis['closure_rate_pct']:.1f}%",
-            help="Percentage of closed issues out of total issues tracked",
-        )
+        with st.container(border=True):
+            st.metric(
+                label="Issue Closure Rate",
+                value=f"{kpis['closure_rate_pct']:.1f}%",
+                help="Percentage of closed issues out of total issues tracked",
+            )
     with c5:
-        st.metric(
-            label="Active Contributors",
-            value=f"{kpis['active_contributors']:,}",
-            help="Distinct authors participating across commits, PRs, or issues",
-        )
+        with st.container(border=True):
+            st.metric(
+                label="Active Contributors",
+                value=f"{kpis['active_contributors']:,}",
+                help="Distinct authors participating across commits, PRs, or issues",
+            )
 
     st.markdown("---")
 
@@ -441,10 +448,13 @@ def main():
             color_discrete_sequence=px.colors.qualitative.Prism,
         )
         fig_velocity.update_layout(
+            height=380,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
             hovermode="x unified",
             xaxis=dict(showgrid=True, gridcolor="rgba(128,128,128,0.2)"),
             yaxis=dict(showgrid=True, gridcolor="rgba(128,128,128,0.2)"),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            legend=dict(orientation="h", yanchor="bottom", y=1.12, xanchor="right", x=1),
             margin=dict(l=20, r=20, t=50, b=20),
         )
         st.plotly_chart(fig_velocity, use_container_width=True)
@@ -476,11 +486,14 @@ def main():
                 )
             )
             fig_cycle.update_layout(
+                height=380,
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
                 barmode="group",
                 title="PR Hours to Merge (Avg vs Median)",
-                xaxis_title="Repository",
-                yaxis_title="Hours to Merge",
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                xaxis=dict(title="Repository", showgrid=False),
+                yaxis=dict(title="Hours to Merge", showgrid=True, gridcolor="rgba(128,128,128,0.2)"),
+                legend=dict(orientation="h", yanchor="bottom", y=1.12, xanchor="right", x=1),
                 margin=dict(l=20, r=20, t=50, b=20),
             )
             st.plotly_chart(fig_cycle, use_container_width=True)
@@ -506,8 +519,13 @@ def main():
                 labels={"count": "Issue Count", "repository": "Repository", "status": "Status"},
             )
             fig_backlog.update_layout(
+                height=380,
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
                 barmode="stack",
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                xaxis=dict(title="Repository", showgrid=False),
+                yaxis=dict(title="Issue Count", showgrid=True, gridcolor="rgba(128,128,128,0.2)"),
+                legend=dict(orientation="h", yanchor="bottom", y=1.12, xanchor="right", x=1),
                 margin=dict(l=20, r=20, t=50, b=20),
             )
             st.plotly_chart(fig_backlog, use_container_width=True)
@@ -521,11 +539,13 @@ def main():
     top_contrib_df = get_top_contributors(repos_tuple, exclude_bots)
 
     if not top_contrib_df.empty:
-        c_chart, c_table = st.columns([1.2, 1.0])
+        tab_chart, tab_table = st.tabs(["Leaderboard Chart", "Contributor Table"])
 
-        with c_chart:
+        with tab_chart:
             # Sort ascending for horizontal bar chart so highest is at top
             chart_df = top_contrib_df.sort_values(by="Total Contributions", ascending=True)
+            max_val = float(chart_df["Total Contributions"].max()) if not chart_df.empty else 100.0
+
             fig_leaderboard = px.bar(
                 chart_df,
                 x="Total Contributions",
@@ -536,26 +556,43 @@ def main():
                 color_continuous_scale="Viridis",
                 text="Total Contributions",
             )
+            fig_leaderboard.update_traces(
+                textposition="outside",
+                cliponaxis=False,
+            )
             fig_leaderboard.update_layout(
+                height=400,
+                uniformtext_mode="hide",
                 coloraxis_showscale=False,
-                margin=dict(l=20, r=20, t=40, b=20),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=10, r=45, t=20, b=30),
+                xaxis=dict(
+                    range=[0, max_val * 1.18],
+                    showgrid=True,
+                    gridcolor="rgba(128,128,128,0.2)",
+                    title="Total Contributions",
+                ),
+                yaxis=dict(title="Contributor", showgrid=False),
             )
             st.plotly_chart(fig_leaderboard, use_container_width=True)
 
-        with c_table:
-            st.markdown("##### Detailed Contributor Breakdown")
+        with tab_table:
+            table_df = top_contrib_df.copy()
+            table_df["Type"] = table_df["Bot"].apply(lambda b: "Bot" if b else "Human")
+            table_df = table_df[["Contributor", "Type", "Commits", "Pull Requests", "Issues", "Total Contributions"]]
+
             st.dataframe(
-                top_contrib_df,
+                table_df,
                 use_container_width=True,
                 hide_index=True,
                 column_config={
-                    "Total Contributions": st.column_config.ProgressColumn(
-                        "Total Volume",
-                        format="%d",
-                        min_value=0,
-                        max_value=int(top_contrib_df["Total Contributions"].max()),
-                    ),
-                    "Bot": st.column_config.CheckboxColumn("Bot Account"),
+                    "Contributor": st.column_config.TextColumn("Contributor"),
+                    "Type": st.column_config.TextColumn("Type"),
+                    "Commits": st.column_config.NumberColumn("Commits", format="%d"),
+                    "Pull Requests": st.column_config.NumberColumn("Pull Requests", format="%d"),
+                    "Issues": st.column_config.NumberColumn("Issues", format="%d"),
+                    "Total Contributions": st.column_config.NumberColumn("Total Contributions", format="%d"),
                 },
             )
     else:
@@ -568,26 +605,50 @@ def main():
     summary_df = get_repo_summary(repos_tuple)
 
     if not summary_df.empty:
+        rename_map = {
+            "Repository": "Repository",
+            "Stars": "Stars",
+            "Forks": "Forks",
+            "Commits": "Commits",
+            "Total PRs": "PRs",
+            "Merged PRs": "Merged",
+            "Avg Merge (hrs)": "Avg Merge (h)",
+            "Median Merge (hrs)": "Med Merge (h)",
+            "Closure Rate (%)": "Closure %",
+            "Active Contributors": "Human Devs",
+            "Bot Commit (%)": "Bot %",
+        }
+        compact_cols = [
+            "Repository",
+            "Stars",
+            "Forks",
+            "Commits",
+            "PRs",
+            "Merged",
+            "Avg Merge (h)",
+            "Med Merge (h)",
+            "Closure %",
+            "Human Devs",
+            "Bot %",
+        ]
+        display_summary = summary_df.rename(columns=rename_map)[compact_cols]
+
         st.dataframe(
-            summary_df,
+            display_summary,
             use_container_width=True,
             hide_index=True,
             column_config={
-                "Stars": st.column_config.NumberColumn(format="%d ⭐"),
-                "Forks": st.column_config.NumberColumn(format="%d 🍴"),
-                "Commits": st.column_config.NumberColumn(format="%d"),
-                "Total PRs": st.column_config.NumberColumn(format="%d"),
-                "Merged PRs": st.column_config.NumberColumn(format="%d"),
-                "Avg Merge (hrs)": st.column_config.NumberColumn(format="%.1f h"),
-                "Median Merge (hrs)": st.column_config.NumberColumn(format="%.1f h"),
-                "Total Issues": st.column_config.NumberColumn(format="%d"),
-                "Closure Rate (%)": st.column_config.ProgressColumn(
-                    format="%.1f%%",
-                    min_value=0,
-                    max_value=100,
-                ),
-                "Active Contributors": st.column_config.NumberColumn(format="%d 👥"),
-                "Bot Commit (%)": st.column_config.NumberColumn(format="%.1f%%"),
+                "Repository": st.column_config.TextColumn("Repository"),
+                "Stars": st.column_config.NumberColumn("Stars", format="%d"),
+                "Forks": st.column_config.NumberColumn("Forks", format="%d"),
+                "Commits": st.column_config.NumberColumn("Commits", format="%d"),
+                "PRs": st.column_config.NumberColumn("PRs", format="%d"),
+                "Merged": st.column_config.NumberColumn("Merged", format="%d"),
+                "Avg Merge (h)": st.column_config.NumberColumn("Avg Merge (h)", format="%.1f"),
+                "Med Merge (h)": st.column_config.NumberColumn("Med Merge (h)", format="%.1f"),
+                "Closure %": st.column_config.NumberColumn("Closure %", format="%.1f%%"),
+                "Human Devs": st.column_config.NumberColumn("Human Devs", format="%d"),
+                "Bot %": st.column_config.NumberColumn("Bot %", format="%.1f%%"),
             },
         )
     else:
