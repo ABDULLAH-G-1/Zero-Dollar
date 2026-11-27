@@ -368,11 +368,12 @@ def main():
         help="Filter out automated bot accounts from velocity, cycles, and leaderboard metrics",
     )
 
+    warehouse_label = "MotherDuck (Cloud)" if target_env.lower() == "prod" else "DuckDB (Local)"
     st.sidebar.markdown("---")
     st.sidebar.info(
         "**Stack Architecture:**\n"
         "- Ingestion: `dlt` (GitHub REST v3)\n"
-        "- Warehouse: `DuckDB`\n"
+        f"- Warehouse: `{warehouse_label}`\n"
         "- Transformations: `dbt-duckdb`\n"
         "- BI Layer: `Streamlit` & `Plotly`"
     )
@@ -434,6 +435,7 @@ def main():
 
     # --- 2. Weekly Commit Velocity (Line Chart) ---
     st.subheader("📈 Weekly Commit Velocity")
+    st.caption("Weekly commit volume comparison across selected repositories")
     velocity_df = get_weekly_velocity(repos_tuple, exclude_bots)
 
     if not velocity_df.empty:
@@ -444,7 +446,6 @@ def main():
             color="repository",
             markers=True,
             labels={"week_start": "Week Starting", "commits": "Commits", "repository": "Repository"},
-            title="Weekly Commit Volume Comparison",
             color_discrete_sequence=px.colors.qualitative.Prism,
         )
         fig_velocity.update_layout(
@@ -454,10 +455,10 @@ def main():
             hovermode="x unified",
             xaxis=dict(showgrid=True, gridcolor="rgba(128,128,128,0.2)"),
             yaxis=dict(showgrid=True, gridcolor="rgba(128,128,128,0.2)"),
-            legend=dict(orientation="h", yanchor="bottom", y=1.12, xanchor="right", x=1),
-            margin=dict(l=20, r=20, t=50, b=20),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, title_text=""),
+            margin=dict(t=45, b=40, l=20, r=20),
         )
-        st.plotly_chart(fig_velocity, use_container_width=True)
+        st.plotly_chart(fig_velocity, use_container_width=True, config={"displayModeBar": False})
     else:
         st.info("No commit history found for the selected repositories.")
 
@@ -466,6 +467,7 @@ def main():
 
     with col_left:
         st.subheader("⏱️ PR Cycle Time Comparison")
+        st.caption("Average vs median hours required to merge pull requests")
         cycle_df = get_pr_cycle_times(repos_tuple, exclude_bots)
         if not cycle_df.empty:
             fig_cycle = go.Figure()
@@ -490,18 +492,18 @@ def main():
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
                 barmode="group",
-                title="PR Hours to Merge (Avg vs Median)",
                 xaxis=dict(title="Repository", showgrid=False),
                 yaxis=dict(title="Hours to Merge", showgrid=True, gridcolor="rgba(128,128,128,0.2)"),
-                legend=dict(orientation="h", yanchor="bottom", y=1.12, xanchor="right", x=1),
-                margin=dict(l=20, r=20, t=50, b=20),
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, title_text=""),
+                margin=dict(t=45, b=40, l=20, r=20),
             )
-            st.plotly_chart(fig_cycle, use_container_width=True)
+            st.plotly_chart(fig_cycle, use_container_width=True, config={"displayModeBar": False})
         else:
             st.info("No merged pull requests available for cycle time analysis.")
 
     with col_right:
         st.subheader("📋 Issue Backlog Health")
+        st.caption("Issue state distribution: Closed vs Active vs Stale (>30d)")
         backlog_df = get_issue_backlog(repos_tuple, exclude_bots)
         if not backlog_df.empty:
             color_map = {
@@ -515,7 +517,6 @@ def main():
                 y="count",
                 color="status",
                 color_discrete_map=color_map,
-                title="Issue Distribution: Closed vs Active vs Stale",
                 labels={"count": "Issue Count", "repository": "Repository", "status": "Status"},
             )
             fig_backlog.update_layout(
@@ -525,10 +526,10 @@ def main():
                 barmode="stack",
                 xaxis=dict(title="Repository", showgrid=False),
                 yaxis=dict(title="Issue Count", showgrid=True, gridcolor="rgba(128,128,128,0.2)"),
-                legend=dict(orientation="h", yanchor="bottom", y=1.12, xanchor="right", x=1),
-                margin=dict(l=20, r=20, t=50, b=20),
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, title_text=""),
+                margin=dict(t=45, b=40, l=20, r=20),
             )
-            st.plotly_chart(fig_backlog, use_container_width=True)
+            st.plotly_chart(fig_backlog, use_container_width=True, config={"displayModeBar": False})
         else:
             st.info("No issue backlog records found.")
 
@@ -542,6 +543,7 @@ def main():
         tab_chart, tab_table = st.tabs(["Leaderboard Chart", "Contributor Table"])
 
         with tab_chart:
+            st.caption("Top 10 contributors by combined volume (commits, PRs, issues)")
             # Sort ascending for horizontal bar chart so highest is at top
             chart_df = top_contrib_df.sort_values(by="Total Contributions", ascending=True)
             max_val = float(chart_df["Total Contributions"].max()) if not chart_df.empty else 100.0
@@ -551,7 +553,6 @@ def main():
                 x="Total Contributions",
                 y="Contributor",
                 orientation="h",
-                title="Total Contributions (Commits + PRs + Issues)",
                 color="Total Contributions",
                 color_continuous_scale="Viridis",
                 text="Total Contributions",
@@ -566,7 +567,7 @@ def main():
                 coloraxis_showscale=False,
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=10, r=45, t=20, b=30),
+                margin=dict(t=45, b=40, l=20, r=20),
                 xaxis=dict(
                     range=[0, max_val * 1.18],
                     showgrid=True,
@@ -575,7 +576,7 @@ def main():
                 ),
                 yaxis=dict(title="Contributor", showgrid=False),
             )
-            st.plotly_chart(fig_leaderboard, use_container_width=True)
+            st.plotly_chart(fig_leaderboard, use_container_width=True, config={"displayModeBar": False})
 
         with tab_table:
             table_df = top_contrib_df.copy()

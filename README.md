@@ -1,11 +1,14 @@
 # 🚀 GitHub Analytics Pipeline (Zero-Dollar Modern Data Stack)
 
+[![Live Dashboard](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://zero-dollar-dhmaqmfwnjd75lmivk3sdd.streamlit.app)
 [![Daily Pipeline](https://github.com/OWNER/REPOSITORY/actions/workflows/daily_pipeline.yml/badge.svg)](https://github.com/OWNER/REPOSITORY/actions/workflows/daily_pipeline.yml)
 [![DuckDB](https://img.shields.io/badge/DuckDB-1.1+-FFF100?logo=duckdb&logoColor=black)](https://duckdb.org/)
 [![dlt](https://img.shields.io/badge/dlt-1.0+-blue?logo=python)](https://dlthub.com/)
 [![dbt-core](https://img.shields.io/badge/dbt-1.8+-FF694B?logo=dbt&logoColor=white)](https://www.getdbt.com/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.35+-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![MotherDuck](https://img.shields.io/badge/MotherDuck-Cloud-blueviolet)](https://motherduck.com/)
+
+> 🌐 **Live Interactive Dashboard:** [zero-dollar-dhmaqmfwnjd75lmivk3sdd.streamlit.app](https://zero-dollar-dhmaqmfwnjd75lmivk3sdd.streamlit.app)
 
 A production-grade, end-to-end analytics engineering pipeline designed to benchmark open-source repository velocity, contributor dynamics, issue backlog health, and pull request review efficiency across major data repositories (`dlt-hub/dlt`, `duckdb/duckdb`, and `dbt-labs/dbt-core`).
 
